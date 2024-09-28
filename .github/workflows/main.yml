@@ -1,0 +1,36 @@
+name: CI/CD Pipeline for FastAPI
+
+# Run workflow on any push to the 'main' branch
+on:
+  push:
+    branches:
+      - main  # Change this if you're using a different branch
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Step to pull the latest code from the repository
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'  # Specify your Python version here
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Ensure you have a requirements.txt file listing your dependencies
+
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}  # Store the Render API key as a secret in GitHub
+        run: |
+          curl -X POST https://api.render.com/deploy/srv-crru09l6l47c73col4cg?key=b8eswGgo6rg
+          -H "Authorization: Bearer $RENDER_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{"branch": "main"}'
+        # Replace srv-crfbp43qf0us738ihh50 with your actual Render service ID
+        # Ensure the branch is the correct one you're deploying (e.g., 'main')
